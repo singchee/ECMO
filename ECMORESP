@@ -1,0 +1,94 @@
+#extract all variables of interest
+
+table1 = select(ECMO_data_and_linked_APD_for_analysis_08122020, AGE, CHR_LIV, IMMUNDIS, IMMUNRX, AIDS, HEPFAIL, LYMPHOMA, METAST, LEUKAEM, IMMUNSUP, CIRRHOS, PrimaryDiagnosis, PrimaryOther, Otherdiagnosis1, Otherdiagnosis2, ICU_OUTCM, HOSP_OUTCM,ECMOtype, invventpriorECMO, Viralpneumonia, Bacterialpneumonia, Asthma, Trauma, Aspirationpneumonitis, NeuroInfo, Neuromuscularblocking, Inhalednitricoxide, Bicarbonateinfusion, CardiacarrestpriorECMO, ECMOPaCO2,Peakinsppressure)
+
+#GENERATE EXTRA VARIABLES
+
+#Generate variable for solid organ tumor
+table1$SolidOrganCa = ifelse(table1$AP3DIAG %in% c(202,312, 405,1302, 1303,1405,1505,1701) | table1$AP3_SUBCODE %in% c(307.04,704.11,901.05,1504.04,1801.01), 1, 0)
+
+#Generate a variable for ANY resp diagnosis
+#Step 1: Generate Respiratory diagnosis variable from APACHE (including 201 - aspiration/209- asthma/212 - bact pneu/213 - viral pneu)
+
+table1$APACHEresp = ifelse(table1$AP3DIAG %in% c(201, 209, 212, 213, 202,203, 204, 206, 207, 208, 210,211, 1301, 1302, 1303, 1304), 1, 0)
+
+#Step 2: Generate Resp diagnoses from ICD
+table1$ICDresp = ifelse(grepl("J", paste(table1$PrimaryOther,table1$Otherdiagnosis1, table1$Otherdiagnosis2)), 1, 0)
+
+#Step 3: Generate variable for ALL resp diagnosis
+table1$RespDiag = ifelse (table1$otherresp == 1 | table1$ICDresp == 1, 1, 0)
+
+#Generate nonpulmonary infection variable
+#Step 1: Generate all infection diagnosis from APACHE
+
+table1$AnyInfection = ifelse(table1$AP3_SUBCODE %in% c(109.06,313.01, 313.03, 313.05, 901.04, 1301.01, 1409.01, 1409.02, 1412.01, 1506.01) | table1$AP3DIAG %in% c(205, 210, 212, 213, 404, 1102, 501, 502, 503, 504, 1406, 1412, 1904), 1, 0)
+
+#Step 2: Generate non-pulmonary infection variable
+table1$NonPulmInfection = ifelse(table1$APACHEinfection == 1 & table1$RespDiag == 0, 1, 0)
+
+#####GENERATE SAVE CATEGORIES#
+#Age categories
+table1$AgeCat = cut(table1$AGE, breaks = c(0, 50, 60, 999), labels = c("1", "2", "3"), include.lowest = TRUE)
+
+#Immunocompromised category
+table1$ImmuComprCat = with(table1, ifelse(CHR_LIV == "1" | CIRRHOS == "1" | IMMUNDIS == "1" | IMMUNRX == "1" | AIDS == "1" | HEPFAIL == "1" | LYMPHOMA == "1" | METAST == "1" | LEUKAEM == "1" | IMMUNSUP == "1" | SolidOrganCa == "1", "1", ""))
+
+#Ventilated before ECMO
+#Need to convert from char to numeric
+table1$invventpriorECMO_num = as.numeric(table1$invventpriorECMO)
+table1$InVentCat = cut(table1$invventpriorECMO_num, breaks = c(0,48,168,9999) , labels = c("1", "2", "3"), include.lowest = TRUE)
+
+#Diagnosis Category
+
+table1$AcRespDgGrp= with(table1, ifelse(Viralpneumonia == "Yes" | AP3DIAG == "213" | PrimaryDiagnosis == "Viral Pneumonia" ,  1, 
++                             ifelse(Bacterialpneumonia == "Yes" | AP3DIAG == "212" | PrimaryDiagnosis == "Bacteria Pneumonia", 2,
++                             ifelse(Asthma == "Yes" | AP3DIAG == "209" | PrimaryDiagnosis == "Asthma", 3,
++                             ifelse(Trauma == "Yes"| AP3DIAG %in% c(601, 602, 603, 604, 605) | PrimaryDiagnosis == "Trauma", 4,
++                             ifelse(Aspirationpneumonitis == "Yes"| AP3DIAG == 201| PrimaryDiagnosis == "Aspiration Pneumonitis", 5, 
++                             ifelse(RespDiag == "1", 6, 7)))))))
+
+#CNS dysfunction cat
+table1$CNSDysfCat=  ifelse(table1$NeuroInfo == "Yes",  1, 0)
+
+#Associated nonpulm infeciton cat
+table1$NonPulmInfCat=  ifelse(table1$NonPulmInfection == "1",  1, 0)
+
+#Neuromsk blokade cat
+table1$NMBCat=  ifelse(table1$Neuromuscularblocking == "Yes",  1, 0)
+
+#NO before ECMO category
+table1$NOCat=  ifelse(table1$Inhalednitricoxide == "Yes",  1, 0)
+
+#HCO3 before ECMO
+table1$BicarbCat=  ifelse(table1$Bicarbonateinfusion == "Yes",  1, 0)
+
+#Cardiac Arrest before ECMO
+table1$CACat=  ifelse(table1$CardiacarrestpriorECMO == "Yes",  1, 0)
+
+#paCO2 category
+table1$CO2Cat =  ifelse(table1$ECMOPaCO2 >= 75,  1, 0)
+
+#Peak insp pressure category
+table1$PIPCat =  ifelse(table1$Peakinsppressure >= 42,  1, 0)
+
+#ICU survival
+table1$ICUSurvival = ifelse(table1$ICU_OUTCM == "2", 0, 1)
+table1$HosSurvival = ifelse(table1$HOSP_OUTCM == "2", 0, 1)
+
+
+#Generate Resp score
+table1$AgeCat = cut(table1$AGE, breaks = c(0, 50, 60, 999), labels = c("1", "2", "3"), include.lowest = TRUE)
+
+##GENERATE SCORES FOR EACH VARIABLE
+
+table1$AgeScore = factor (table1$AgeCat, labels = c("0", "-2", "-3"))
+table1$ImmuComprScore = factor (table1$ImmuComprCat, labels = c("0", "-2"))
+table1$InVentScore = factor (table1$InVentCat, labels = c("3", "2", "0"))
+table1$AcRespGpScore = factor(table1$AcRespDgGrp, labels = c("2", "3", "8", "3", "4", "1", "0"))
+table1$CNSDysfScore = factor(table1$CNSDysfCat, labels = c("0","-6"))
+table1$NonPulmInfScore = factor(table1$NonPulmInfCat, labels = c("0","-2"))
+table1$NMBScore = factor(table1$NMBcat, labels = c("0","1"))
+table1$BicarbScore = factor(table1$BicarbCat, labels = c("0","-1"))
+table1$CAScore = factor(table1$CACat, labels = c("0","-2"))
+table1$CO2Score = factor(table1$CO2Cat, labels = c("0","-1"))
+table1$PIPScore = factor(table1$PIPCat, labels = c("0","1"))
