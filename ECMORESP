@@ -79,7 +79,7 @@ table1$HosSurvival = ifelse(table1$HOSP_OUTCM == "2", 0, 1)
 #Generate Resp score
 table1$AgeCat = cut(table1$AGE, breaks = c(0, 50, 60, 999), labels = c("1", "2", "3"), include.lowest = TRUE)
 
-##GENERATE SCORES FOR EACH VARIABLE
+##ASSIGN SCORES FOR EACH VARIABLE
 
 table1$AgeScore = factor (table1$AgeCat, labels = c("0", "-2", "-3"))
 table1$ImmuComprScore = factor (table1$ImmuComprCat, labels = c("0", "-2"))
@@ -88,7 +88,22 @@ table1$AcRespGpScore = factor(table1$AcRespDgGrp, labels = c("2", "3", "8", "3",
 table1$CNSDysfScore = factor(table1$CNSDysfCat, labels = c("0","-6"))
 table1$NonPulmInfScore = factor(table1$NonPulmInfCat, labels = c("0","-2"))
 table1$NMBScore = factor(table1$NMBcat, labels = c("0","1"))
+table1$NOScore = factor(table1$NOCat, labels = c("0","-1"))
 table1$BicarbScore = factor(table1$BicarbCat, labels = c("0","-1"))
 table1$CAScore = factor(table1$CACat, labels = c("0","-2"))
 table1$CO2Score = factor(table1$CO2Cat, labels = c("0","-1"))
 table1$PIPScore = factor(table1$PIPCat, labels = c("0","1"))
+
+#ASSIGN COEFFICIENTS FOR EACH VARIABLE
+table1$AgeCoeff = factor (table1$AgeCat, labels = c("0", "-0.5071864", "-0.5071864"))
+table1$ImmuComprCoeff = factor (table1$ImmuComprCat, labels = c("0", "-0.4763215"))
+table1$InVentCoeff = factor (table1$InVentCat, labels = c("0.7439236", "0.3633964", "0"))
+table1$AcRespGpCoeff = factor(table1$AcRespDgGrp, labels = c("0.8047736", "0.7338327", "2.824341", "0.6889933", "1.229131", "0.2816645", "0"))
+table1$CNSDysfCoeff = factor(table1$CNSDysfCat, labels = c("0","-1.947505"))
+table1$NonPulmInfCoeff = factor(table1$NonPulmInfCat, labels = c("0","-0.8134079"))
+table1$NMBCoeff = factor(table1$NMBcat, labels = c("0","0.3721779"))
+table1$NOCoeff = factor(table1$NOCat, labels = c("0","-0.3250868"))
+table1$BicarbCoeff = factor(table1$BicarbCat, labels = c("0","-0.4550785"))
+table1$CACoeff = factor(table1$CACat, labels = c("0","-0.548124"))
+table1$CO2Coeff = factor(table1$CO2Cat, labels = c("0", "-0.2647272"))
+table1$PIPCoeff = factor(table1$PIPCat, labels = c("0","-0.3218084"))
