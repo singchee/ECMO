@@ -93,7 +93,7 @@ table1$NOScore = recode(table1$NOCat, "0"=0,"1"=-1)
 table1$BicarbScore = recode(table1$BicarbCat, "0"=0,"1"=-1)
 table1$CAScore = recode(table1$CACat, "0"=0,"1"=-2)
 table1$CO2Score = recode(table1$CO2Cat, "0"=0,"1"=-1)
-table1$PIPScore = recode(table1$PIPCat, "0"=0,"1"=1)
+table1$PIPScore = recode(table1$PIPCat, "0"=0,"1"=-1)
 
 #ASSIGN COEFFICIENTS FOR EACH VARIABLE
 table1$AgeCoeff = recode(table1$AgeCat, "1"=0, "2"=-0.5071864, "3"=-0.5071864)
@@ -114,19 +114,19 @@ table1[, 53:77][is.na(table1[, 53:77])] <- 0
 
 ##CALCULATE LOGIT
 
-table1$logit = 0.1041223 + with(table1,rowSums(cbind(AgeScore*AgeCoeff, 
-                                                     ImmuComprScore*ImmuComprCoeff, 
-                                                     InVentScore*InVentCoeff,
-                                                     AcRespGpScore*AcRespGpCoeff,
-                                                     CNSDysfScore*CNSDysfCoeff,
-                                                     NonPulmInfScore*NonPulmInfCoeff,
-                                                     NMBScore*NMBCoeff,
-                                                     NOScore*NOCoeff, 
-                                                     BicarbScore*BicarbCoeff, 
-                                                     CAScore*CACoeff, 
-                                                     CO2Score*CO2Coeff, 
-                                                     PIPScore*PIPCoeff) ))
 
+table1$logit = 0.1041223 + with(table1,rowSums(cbind(AgeCoeff, 
+                                                     ImmuComprCoeff, 
+                                                     InVentCoeff,
+                                                     AcRespGpCoeff,
+                                                     CNSDysfCoeff,
+                                                     NonPulmInfCoeff,
+                                                     NMBCoeff,
+                                                     NOCoeff, 
+                                                     BicarbCoeff, 
+                                                     CACoeff, 
+                                                     CO2Coeff, 
+                                                     PIPCoeff) ))
 ##CALCULATE SURVIVAL PROB##
 table1$survivalprob = exp(table1$logit) / (1+exp(table1$logit))
 
