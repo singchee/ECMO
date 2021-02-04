@@ -1,0 +1,13 @@
+##ignore##
+table1$logit = 0.1041223 + with(table1,rowSums(cbind(AgeScore*AgeCoeff, 
+                                                     ImmuComprScore*ImmuComprCoeff, 
+                                                     InVentScore*InVentCoeff,
+                                                     AcRespGpScore*AcRespGpCoeff,
+                                                     CNSDysfScore*CNSDysfCoeff,
+                                                     NonPulmInfScore*NonPulmInfCoeff,
+                                                     NMBScore*NMBCoeff,
+                                                     NOScore*NOCoeff, 
+                                                     BicarbScore*BicarbCoeff, 
+                                                     CAScore*CACoeff, 
+                                                     CO2Score*CO2Coeff, 
+                                                     PIPScore*PIPCoeff) ))
