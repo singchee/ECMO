@@ -1,6 +1,6 @@
 #extract all variables of interest
 
-table1 = select(ECMO_data_and_linked_APD_for_analysis_08122020, AGE, CHR_LIV, IMMUNDIS, IMMUNRX, AIDS, HEPFAIL, LYMPHOMA, METAST, LEUKAEM, IMMUNSUP, CIRRHOS, PrimaryDiagnosis, PrimaryOther, Otherdiagnosis1, Otherdiagnosis2, ICU_OUTCM, HOSP_OUTCM,ECMOtype, invventpriorECMO, Viralpneumonia, Bacterialpneumonia, Asthma, Trauma, Aspirationpneumonitis, NeuroInfo, Neuromuscularblocking, Inhalednitricoxide, Bicarbonateinfusion, CardiacarrestpriorECMO, ECMOPaCO2,Peakinsppressure)
+table1 = select(ECMO_data_and_linked_APD_for_analysis_08122020, AGE, CHR_LIV, IMMUNDIS, IMMUNRX, AIDS, HEPFAIL, LYMPHOMA, METAST, LEUKAEM, IMMUNSUP, CIRRHOS, AP3DIAG, AP3_SUBCODE, PrimaryDiagnosis, PrimaryOther, Otherdiagnosis1, Otherdiagnosis2, ICU_OUTCM, HOSP_OUTCM,ECMOtype, invventpriorECMO, Viralpneumonia, Bacterialpneumonia, Asthma, Trauma, Aspirationpneumonitis, NeuroInfo, Neuromuscularblocking, Inhalednitricoxide, Bicarbonateinfusion, CardiacarrestpriorECMO, ECMOPaCO2,Peakinsppressure)
 
 #GENERATE EXTRA VARIABLES
 
@@ -8,15 +8,15 @@ table1 = select(ECMO_data_and_linked_APD_for_analysis_08122020, AGE, CHR_LIV, IM
 table1$SolidOrganCa = ifelse(table1$AP3DIAG %in% c(202,312, 405,1302, 1303,1405,1505,1701) | table1$AP3_SUBCODE %in% c(307.04,704.11,901.05,1504.04,1801.01), 1, 0)
 
 #Generate a variable for ANY resp diagnosis
-#Step 1: Generate Respiratory diagnosis variable from APACHE (including 201 - aspiration/209- asthma/212 - bact pneu/213 - viral pneu)
+#Step 1: Identify all Respiratory diagnosis from APACHE (including 201 - aspiration/209- asthma/212 - bact pneu/213 - viral pneu)
 
 table1$APACHEresp = ifelse(table1$AP3DIAG %in% c(201, 209, 212, 213, 202,203, 204, 206, 207, 208, 210,211, 1301, 1302, 1303, 1304), 1, 0)
 
-#Step 2: Generate Resp diagnoses from ICD
+#Step 2: identify Resp diagnoses from ICD
 table1$ICDresp = ifelse(grepl("J", paste(table1$PrimaryOther,table1$Otherdiagnosis1, table1$Otherdiagnosis2)), 1, 0)
 
-#Step 3: Generate variable for ALL resp diagnosis
-table1$RespDiag = ifelse (table1$otherresp == 1 | table1$ICDresp == 1, 1, 0)
+#Step 3: Identify ALL resp diagnosis
+table1$RespDiag = ifelse(table1$APACHEresp == 1 | table1$ICDresp == 1, 1, 0)
 
 #Generate nonpulmonary infection variable
 #Step 1: Generate all infection diagnosis from APACHE
@@ -24,14 +24,14 @@ table1$RespDiag = ifelse (table1$otherresp == 1 | table1$ICDresp == 1, 1, 0)
 table1$AnyInfection = ifelse(table1$AP3_SUBCODE %in% c(109.06,313.01, 313.03, 313.05, 901.04, 1301.01, 1409.01, 1409.02, 1412.01, 1506.01) | table1$AP3DIAG %in% c(205, 210, 212, 213, 404, 1102, 501, 502, 503, 504, 1406, 1412, 1904), 1, 0)
 
 #Step 2: Generate non-pulmonary infection variable
-table1$NonPulmInfection = ifelse(table1$APACHEinfection == 1 & table1$RespDiag == 0, 1, 0)
+table1$NonPulmInfection = ifelse(table1$AnyInfection == 1 & table1$RespDiag == 0, 1, 0)
 
 #####GENERATE SAVE CATEGORIES#
 #Age categories
-table1$AgeCat = cut(table1$AGE, breaks = c(0, 50, 60, 999), labels = c("1", "2", "3"), include.lowest = TRUE)
+table1$AgeCat = cut(table1$AGE, breaks = c(0, 50, 60, 999), labels = c(1,2,3), include.lowest = TRUE)
 
 #Immunocompromised category
-table1$ImmuComprCat = with(table1, ifelse(CHR_LIV == "1" | CIRRHOS == "1" | IMMUNDIS == "1" | IMMUNRX == "1" | AIDS == "1" | HEPFAIL == "1" | LYMPHOMA == "1" | METAST == "1" | LEUKAEM == "1" | IMMUNSUP == "1" | SolidOrganCa == "1", "1", ""))
+table1$ImmuComprCat = with(table1, ifelse(CHR_LIV == "1" | CIRRHOS == "1" | IMMUNDIS == "1" | IMMUNRX == "1" | AIDS == "1" | HEPFAIL == "1" | LYMPHOMA == "1" | METAST == "1" | LEUKAEM == "1" | IMMUNSUP == "1" | SolidOrganCa == "1", 1, 0))
 
 #Ventilated before ECMO
 #Need to convert from char to numeric
@@ -80,36 +80,71 @@ table1$HosSurvival = ifelse(table1$HOSP_OUTCM == "2", 0, 1)
 table1$AgeCat = cut(table1$AGE, breaks = c(0, 50, 60, 999), labels = c("1", "2", "3"), include.lowest = TRUE)
 
 ##ASSIGN SCORES FOR EACH VARIABLE
+library(dplyr)
 
-table1$AgeScore = factor(table1$AgeCat, labels = c("0", "-2", "-3"))
-table1$ImmuComprScore = as.numeric(factor(table1$ImmuComprCat, labels = c("0", "-2")))
-table1$InVentScore = factor(table1$InVentCat, labels = c("3", "2", "0"))
-table1$AcRespGpScore = factor(table1$AcRespDgGrp, labels = c("2", "3", "8", "3", "4", "1", "0"))
-table1$CNSDysfScore = factor(table1$CNSDysfCat, labels = c("0","-6"))
-table1$NonPulmInfScore = factor(table1$NonPulmInfCat, labels = c("0","-2"))
-table1$NMBScore = factor(table1$NMBcat, labels = c("0","1"))
-table1$NOScore = factor(table1$NOCat, labels = c("0","-1"))
-table1$BicarbScore = factor(table1$BicarbCat, labels = c("0","-1"))
-table1$CAScore = factor(table1$CACat, labels = c("0","-2"))
-table1$CO2Score = factor(table1$CO2Cat, labels = c("0","-1"))
-table1$PIPScore = factor(table1$PIPCat, labels = c("0","1"))
+table1$AgeScore = recode(table1$AgeCat, "1"=0, "2"=-2, "3"=-3)
+table1$ImmuComprScore = recode(table1$ImmuComprCat, "0" =0, "1"=-2)
+table1$InVentScore = recode(table1$InVentCat, "1"=3, "2"=2, "3"=0)
+table1$AcRespGpScore = recode(table1$AcRespDgGrp, "1"=2, "2"=3, "3"=8, "4"=3, "5"=4, "6"=1, "7"=0)
+table1$CNSDysfScore = recode(table1$CNSDysfCat, "0"=0,"1"=-6)
+table1$NonPulmInfScore = recode(table1$NonPulmInfCat, "0"=0,"1"=-2)
+table1$NMBScore = recode(table1$NMBCat, "0"=0,"1"=1)
+table1$NOScore = recode(table1$NOCat, "0"=0,"1"=-1)
+table1$BicarbScore = recode(table1$BicarbCat, "0"=0,"1"=-1)
+table1$CAScore = recode(table1$CACat, "0"=0,"1"=-2)
+table1$CO2Score = recode(table1$CO2Cat, "0"=0,"1"=-1)
+table1$PIPScore = recode(table1$PIPCat, "0"=0,"1"=1)
 
 #ASSIGN COEFFICIENTS FOR EACH VARIABLE
-table1$AgeCoeff = factor(table1$AgeCat, labels = c("0", "-0.5071864", "-0.5071864"))
-table1$ImmuComprCoeff = factor(table1$ImmuComprCat, labels = c("0", "-0.4763215"))
-table1$InVentCoeff = factor(table1$InVentCat, labels = c("0.7439236", "0.3633964", "0"))
-table1$AcRespGpCoeff = factor(table1$AcRespDgGrp, labels = c("0.8047736", "0.7338327", "2.824341", "0.6889933", "1.229131", "0.2816645", "0"))
-table1$CNSDysfCoeff = factor(table1$CNSDysfCat, labels = c("0","-1.947505"))
-table1$NonPulmInfCoeff = factor(table1$NonPulmInfCat, labels = c("0","-0.8134079"))
-table1$NMBCoeff = factor(table1$NMBcat, labels = c("0","0.3721779"))
-table1$NOCoeff = factor(table1$NOCat, labels = c("0","-0.3250868"))
-table1$BicarbCoeff = factor(table1$BicarbCat, labels = c("0","-0.4550785"))
-table1$CACoeff = factor(table1$CACat, labels = c("0","-0.548124"))
-table1$CO2Coeff = factor(table1$CO2Cat, labels = c("0", "-0.2647272"))
-table1$PIPCoeff = factor(table1$PIPCat, labels = c("0","-0.3218084"))
+table1$AgeCoeff = recode(table1$AgeCat, "1"=0, "2"=-0.5071864, "3"=-0.5071864)
+table1$ImmuComprCoeff = recode(table1$ImmuComprCat, "0" =0, "1"=-0.4763215)
+table1$InVentCoeff = recode(table1$InVentCat, "1"=0.7439236, "2"= 0.3633964, "3"=0)
+table1$AcRespGpCoeff = recode(table1$AcRespDgGrp, "1"=0.8047736, "2"=0.7338327, "3"=2.824341, "4"=0.6889933, "5"=1.229131, "6"=0.2816645, "7"=0)
+table1$CNSDysfCoeff = recode(table1$CNSDysfCat, "0"=0,"1"=-1.947505)
+table1$NonPulmInfCoeff = recode(table1$NonPulmInfCat, "0"=0,"1"=-0.8134079)
+table1$NMBCoeff = recode(table1$NMBCat, "0"=0,"1"=0.3721779)
+table1$NOCoeff = recode(table1$NOCat, "0"=0,"1"=-0.3250868)
+table1$BicarbCoeff = recode(table1$BicarbCat, "0"=0,"1"=-0.4550785)
+table1$CACoeff = recode(table1$CACat, "0"=0,"1"=-0.548124)
+table1$CO2Coeff = recode(table1$CO2Cat, "0"=0,"1"=-0.2647272)
+table1$PIPCoeff = recode(table1$PIPCat, "0"=0,"1"=-0.3218084)
+
+#replace NA with 0
+table1[, 53:77][is.na(table1[, 53:77])] <- 0
 
 ##CALCULATE LOGIT
 
-table1$logit = 0.1041223 + with(table1,rowSums(cbind(AgeScore*AgeCoeff, ImmuComprScore*ImmuComprCoeff, InVentScore*InVentCoeff) ))
+table1$logit = 0.1041223 + with(table1,rowSums(cbind(AgeScore*AgeCoeff, 
+                                                     ImmuComprScore*ImmuComprCoeff, 
+                                                     InVentScore*InVentCoeff,
+                                                     AcRespGpScore*AcRespGpCoeff,
+                                                     CNSDysfScore*CNSDysfCoeff,
+                                                     NonPulmInfScore*NonPulmInfCoeff,
+                                                     NMBScore*NMBCoeff,
+                                                     NOScore*NOCoeff, 
+                                                     BicarbScore*BicarbCoeff, 
+                                                     CAScore*CACoeff, 
+                                                     CO2Score*CO2Coeff, 
+                                                     PIPScore*PIPCoeff) ))
 
+##CALCULATE SURVIVAL PROB##
+table1$survivalprob = exp(table1$logit) / (1+exp(table1$logit))
 
+##CALCULATE TOTAL RESP SCORE##
+
+table1$RESPscore= with(table1, rowSums(cbind(AgeScore, 
+                                                     ImmuComprScore, 
+                                                     InVentScore,
+                                                     AcRespGpScore,
+                                                     CNSDysfScore,
+                                                     NonPulmInfScore,
+                                                     NMBScore,
+                                                     NOScore, 
+                                                     BicarbScore, 
+                                                     CAScore, 
+                                                     CO2Score, 
+                                                     PIPScore) ))
+                                                     
+#Generate Resp Class based on score
+
+table1$RespClass = cut(table1$RESPscore, breaks = c(-100, -4, -1, 2, 5, 100), labels = c("5", "4", "3", "2","1"), include.lowest = TRUE)
