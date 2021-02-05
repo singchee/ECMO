@@ -110,7 +110,7 @@ table1$CO2Coeff = recode(table1$CO2Cat, "0"=0,"1"=-0.2647272)
 table1$PIPCoeff = recode(table1$PIPCat, "0"=0,"1"=-0.3218084)
 
 #replace NA with 0
-table1[, 53:77][is.na(table1[, 53:77])] <- 0
+table1[, 53:78][is.na(table1[, 53:78])] <- 0
 
 ##CALCULATE LOGIT
 
