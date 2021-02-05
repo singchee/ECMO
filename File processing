@@ -1,0 +1,38 @@
+#Tidy ECMO dataframe - have separate dataframes for unique and transfer ECMO runs
+
+# Exclude  - "ECMO-receiving" (lots of missing data)
+
+library(dplyr)
+
+ECMOdata=ECMO_data_and_linked_APD_for_analysis_03022021
+
+ECMOunique = filter(ECMOdata, EntryType == "ECMO-Unique")
+ECMOtransf = filter(ECMOdata, EntryType == "ECMO-Initiation")
+
+#Tidy APD data - separate dataframes for APD unique / initiation / receiving
+
+ECMO_data_and_linked_APD_for_analysis_03022021 <- read_excel("C:/Users/Sing Chee Tan/OneDrive/Research/ECMO dataset/data/ECMO data and linked APD for analysis_03022021.xlsx", 
++     sheet = "APD")
+
+APD = ECMO_data_and_linked_APD_for_analysis_03022021
+
+APDunique = filter(APD, EntryType == "APD-Unique")
+
+#Remove Hosp and ICU outcome from APD initial site
+APDinit = filter(APD, EntryType == "APD-Initiation")
+APDinit = select(APDinit, -HOSP_OUTCM, -ICU_OUTCM)
+
+#Select only Hosp and ICU outcome from APD receiving
+APDrcv = filter(APD, EntryType == "APD-Receiving")
+APDrcv = select(APDrcv, PatientIdentifier, HOSP_OUTCM, ICU_OUTCM)
+
+
+###Join data via PatientID
+
+#ECMO unique join with entire APD unique
+
+ECMOunique_merged = merge(ECMOunique, APDunique, by = "PatientIdentifier")
+
+# ECMOtransfer join with APD-intiation (all -hos and ICU outcome) and APD receiving(hos + icu outcome )
+
+Join ECMOunique and ECMOtransfer
