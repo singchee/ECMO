@@ -1,0 +1,10 @@
+library(ROCR)
+pred = prediction(table1$survivalprob, table1$HosSurvival)
+
+perf <- performance(pred, measure = "tpr", x.measure = "fpr")
+
+plot(perf, col=rainbow(10))
+
+auc_perf <- performance(pred, measure = "auc")
+
+auc_ROCR <- auc_perf@y.values[[1]]
