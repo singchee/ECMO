@@ -1,3 +1,5 @@
+Library(dplyr)
+
 #extract all variables of interest
 
 table1 = select(ECMO_data_and_linked_APD_for_analysis_08122020, AGE, CHR_LIV, IMMUNDIS, IMMUNRX, AIDS, HEPFAIL, LYMPHOMA, METAST, LEUKAEM, IMMUNSUP, CIRRHOS, AP3DIAG, AP3_SUBCODE, PrimaryDiagnosis, PrimaryOther, Otherdiagnosis1, Otherdiagnosis2, ICU_OUTCM, HOSP_OUTCM,ECMOtype, invventpriorECMO, Viralpneumonia, Bacterialpneumonia, Asthma, Trauma, Aspirationpneumonitis, NeuroInfo, Neuromuscularblocking, Inhalednitricoxide, Bicarbonateinfusion, CardiacarrestpriorECMO, ECMOPaCO2,Peakinsppressure)
