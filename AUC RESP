@@ -1,6 +1,12 @@
 library(ROCR)
 pred = prediction(table1$survivalprob, table1$HosSurvival)
 
+#if using GLM model:
+
+ROCpred = predict(model, type='response')
+pred = prediction(ROCpred, table1$HosSurvival)
+
+
 perf <- performance(pred, measure = "tpr", x.measure = "fpr")
 
 plot(perf, col=rainbow(10))
