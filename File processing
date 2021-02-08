@@ -29,10 +29,14 @@ APDrcv = select(APDrcv, PatientIdentifier, HOSP_OUTCM, ICU_OUTCM)
 
 ###Join data via PatientID
 
-#ECMO unique join with entire APD unique
+#Merge ECMO unique table with relevant APD unique table
 
 ECMOunique_merged = merge(ECMOunique, APDunique, by = "PatientIdentifier")
 
-# ECMOtransfer join with APD-intiation (all -hos and ICU outcome) and APD receiving(hos + icu outcome )
+# merge ECMOtransfer with APD-intiation (without -hos and ICU outcome) and APD receiving (hos + icu outcome )
 
-Join ECMOunique and ECMOtransfer
+ECMOtrans_merged = merge(ECMOtransf, APDrcv, by ="PatientIdentifier")
+ECMOtrans_merged = merge(ECMOtrans_merged, APDinit, by ="PatientIdentifier")
+
+#Generate final ECMO file
+ECMO_final = rbind(ECMOtrans_merged, ECMOunique_merged)
