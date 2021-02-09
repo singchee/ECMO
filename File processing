@@ -17,6 +17,8 @@ ECMOtransf = filter(ECMOdata, EntryType == "ECMO-Initiation")
 #load APD file
 
 APD = ECMO_data_and_linked_APD_for_analysis_03022021
+
+#Rename weight variable
 APD = rename(APD, APDweight = WEIGHT)
 
 APDunique = filter(APD, EntryType == "APD-Unique")
