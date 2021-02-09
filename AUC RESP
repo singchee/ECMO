@@ -1,4 +1,5 @@
 library(ROCR)
+table1$HosSurvival[is.na(table1$HosSurvival)] <- 0
 pred = prediction(table1$survivalprob, table1$HosSurvival)
 
 #if using GLM model:
