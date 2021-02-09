@@ -11,7 +11,7 @@ ECMOtransf = filter(ECMOdata, EntryType == "ECMO-Initiation")
 
 #Tidy APD data - separate dataframes for APD unique / initiation / receiving
 
-ECMO_data_and_linked_APD_for_analysis_03022021 <- read_excel("C:/Users/Sing Chee Tan/OneDrive/Research/ECMO dataset/data/ECMO data and linked APD for analysis_03022021.xlsx", 
+ECMO_data_and_linked_APD_for_analysis_03022021 <- read_excel("x", 
 +     sheet = "APD")
 
 APD = ECMO_data_and_linked_APD_for_analysis_03022021
