@@ -1,20 +1,23 @@
-#Tidy ECMO dataframe - have separate dataframes for unique and transfer ECMO runs
-
-# Exclude  - "ECMO-receiving" (lots of missing data)
-
 library(dplyr)
+
+# Create ECMO dataframe - have separate dataframes for unique and transfer ECMO runs
+# Exclude  - "ECMO-receiving" (lots of missing data)
 
 ECMOdata=ECMO_data_and_linked_APD_for_analysis_03022021
 
+#Rename weight variable
+ECMOdata=rename(ECMOdata, ECMOweight = weight)
+
+#Split ECMO file into unique and initiation site records
 ECMOunique = filter(ECMOdata, EntryType == "ECMO-Unique")
 ECMOtransf = filter(ECMOdata, EntryType == "ECMO-Initiation")
 
-#Tidy APD data - separate dataframes for APD unique / initiation / receiving
+#Create tidy APD dataset - separate dataframes for APD unique / initiation / receiving
 
-ECMO_data_and_linked_APD_for_analysis_03022021 <- read_excel("x", 
-+     sheet = "APD")
+#load APD file
 
 APD = ECMO_data_and_linked_APD_for_analysis_03022021
+APD = rename(APD, APDweight = WEIGHT)
 
 APDunique = filter(APD, EntryType == "APD-Unique")
 
