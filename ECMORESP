@@ -2,7 +2,40 @@ Library(dplyr)
 
 #extract all variables of interest
 
-table1 = select(ECMO_data_and_linked_APD_for_analysis_08122020, AGE, CHR_LIV, IMMUNDIS, IMMUNRX, AIDS, HEPFAIL, LYMPHOMA, METAST, LEUKAEM, IMMUNSUP, CIRRHOS, AP3DIAG, AP3_SUBCODE, PrimaryDiagnosis, PrimaryOther, Otherdiagnosis1, Otherdiagnosis2, ICU_OUTCM, HOSP_OUTCM,ECMOtype, invventpriorECMO, Viralpneumonia, Bacterialpneumonia, Asthma, Trauma, Aspirationpneumonitis, NeuroInfo, Neuromuscularblocking, Inhalednitricoxide, Bicarbonateinfusion, CardiacarrestpriorECMO, ECMOPaCO2,Peakinsppressure)
+table1 = select(ECMO_data_and_linked_APD_for_analysis_08122020, 
+                AGE, 
+                CHR_LIV, 
+                IMMUNDIS, 
+                IMMUNRX, 
+                AIDS, 
+                HEPFAIL, 
+                LYMPHOMA, 
+                METAST, 
+                LEUKAEM, 
+                IMMUNSUP, 
+                CIRRHOS, 
+                AP3DIAG, 
+                AP3_SUBCODE, 
+                PrimaryDiagnosis, 
+                PrimaryOther, 
+                Otherdiagnosis1, 
+                Otherdiagnosis2, 
+                ICU_OUTCM, 
+                HOSP_OUTCM,
+                ECMOtype, 
+                invventpriorECMO, 
+                Viralpneumonia, 
+                Bacterialpneumonia, 
+                Asthma, 
+                Trauma, 
+                Aspirationpneumonitis, 
+                NeuroInfo, 
+                Neuromuscularblocking, 
+                Inhalednitricoxide, 
+                Bicarbonateinfusion, 
+                CardiacarrestpriorECMO, 
+                ECMOPaCO2,
+                Peakinsppressure)
 
 #GENERATE EXTRA VARIABLES
 
@@ -68,7 +101,7 @@ table1$BicarbCat=  ifelse(table1$Bicarbonateinfusion == "Yes",  1, 0)
 table1$CACat=  ifelse(table1$CardiacarrestpriorECMO == "Yes",  1, 0)
 
 #paCO2 category
-table1$CO2Cat =  ifelse(table1$ECMOPaCO2 >= 75,  1, 0)
+table1$CO2Cat =  cut(table1$ECMOPaCO2, breaks = c(0,55,75,999) , labels = c("1", "2", "3"), include.lowest = TRUE)
 
 #Peak insp pressure category
 table1$PIPCat =  ifelse(table1$Peakinsppressure >= 42,  1, 0)
@@ -94,7 +127,7 @@ table1$NMBScore = recode(table1$NMBCat, "0"=0,"1"=1)
 table1$NOScore = recode(table1$NOCat, "0"=0,"1"=-1)
 table1$BicarbScore = recode(table1$BicarbCat, "0"=0,"1"=-1)
 table1$CAScore = recode(table1$CACat, "0"=0,"1"=-2)
-table1$CO2Score = recode(table1$CO2Cat, "0"=0,"1"=-1)
+table1$CO2Score = recode(table1$CO2Cat, "1"=0,"2"=0,"3"=-1)
 table1$PIPScore = recode(table1$PIPCat, "0"=0,"1"=-1)
 
 #ASSIGN COEFFICIENTS FOR EACH VARIABLE
@@ -108,7 +141,7 @@ table1$NMBCoeff = recode(table1$NMBCat, "0"=0,"1"=0.3721779)
 table1$NOCoeff = recode(table1$NOCat, "0"=0,"1"=-0.3250868)
 table1$BicarbCoeff = recode(table1$BicarbCat, "0"=0,"1"=-0.4550785)
 table1$CACoeff = recode(table1$CACat, "0"=0,"1"=-0.548124)
-table1$CO2Coeff = recode(table1$CO2Cat, "0"=0,"1"=-0.2647272)
+table1$CO2Coeff = recode(table1$CO2Cat, "1"=0,"2"=-0.2101278,"3"=-0.2647272)
 table1$PIPCoeff = recode(table1$PIPCat, "0"=0,"1"=-0.3218084)
 
 #replace NA with 0
