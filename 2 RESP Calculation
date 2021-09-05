@@ -101,6 +101,7 @@ table1$BicarbCat=  ifelse(table1$Bicarbonateinfusion == "Yes",  1, 0)
 table1$CACat=  ifelse(table1$CardiacarrestpriorECMO == "Yes",  1, 0)
 
 #paCO2 category
+table1$ECMOPaCO2 = as.numeric(table1$ECMOPaCO2)
 table1$CO2Cat =  cut(table1$ECMOPaCO2, breaks = c(0,54,74,999) , labels = c("1", "2", "3"), include.lowest = TRUE)
 
 #Peak insp pressure category
