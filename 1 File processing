@@ -42,7 +42,7 @@ ECMOunique_merged = merge(ECMOunique, APDunique, by = "SLK581")
 # merge ECMOtransfer with APD-intiation (without -hos and ICU outcome) and APD receiving (hos + icu outcome )
 
 ECMOtrans_merged = merge(ECMOtransf, APDrcv, by ="SLK581")
-ECMOtrans_merged = merge(ECMOtrans_merged, APDinit, by ="581")
+ECMOtrans_merged = merge(ECMOtrans_merged, APDinit, by ="SLK581")
 
 #Generate final ECMO file
 ECMO_final = rbind(ECMOtrans_merged, ECMOunique_merged)
