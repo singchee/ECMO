@@ -3,6 +3,7 @@ library(tidyverse)
 #extract all variables of interest
 
 table1 = select(ECMO_final, 
+                SLK581,
                 AGE, 
                 CHR_LIV, 
                 IMMUNDIS, 
