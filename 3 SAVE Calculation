@@ -5,7 +5,9 @@ ECMO_final = filter(ECMO_final, ECMOtype == "Veno-Arterial" | ECMOtypeOther == "
 
 
 #extract all variables of interest
-table1 = select(ECMO_final, AGE,
+table1 = select(ECMO_final, 
+                    SLK581,
+                    AGE,
                     Myocarditis,
                     CardDysrhythmias,
                     HeartLungTransplant,
