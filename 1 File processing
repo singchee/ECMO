@@ -8,7 +8,7 @@ ECMOdata=ECMO_APD_data_for_analysis_update05092021
 #Rename weight variable
 ECMOdata=rename(ECMOdata, ECMOweight = Weight)
 
-#Split ECMO file into unique and initiation site records
+#Split ECMO file into unique (i.e. patient not transfered) and transfer initiation site records
 ECMOunique = filter(ECMOdata, ECMO_epi == "Only" | ECMO_epi == "FirstECMO" | ECMO_epi == "SecondECMO")
 ECMOtransf = filter(ECMOdata,  ECMO_epi == "Initiation")
 
