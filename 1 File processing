@@ -24,6 +24,7 @@ APD$SLK581 = APD$ECMO_SLK581
 
 APDunique = filter(APD, ECMO_epi == "Only" | ECMO_epi == "FirstECMO" | ECMO_epi == "SecondECMO")
 
+#Create a dataset for APD data for transfers
 #Remove Hosp and ICU outcome from APD initial site
 APDinit = filter(APD, ECMO_epi == "Initiation")
 APDinit = select(APDinit, -HOSP_OUTCM, -ICU_OUTCM)
