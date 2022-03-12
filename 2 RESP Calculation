@@ -184,3 +184,4 @@ table1$RESPscore= with(table1, rowSums(cbind(AgeScore,
 #Generate Resp Class based on score
 
 table1$RespClass = cut(table1$RESPscore, breaks = c(-100, -6, -2, 2, 5, 100), labels = c("5", "4", "3", "2","1"), include.lowest = TRUE)
+aggregate(table1$RESPscore ~ table1$ECMOtype, data = table1, summary)
