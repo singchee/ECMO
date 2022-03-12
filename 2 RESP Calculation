@@ -146,7 +146,22 @@ table1$CO2Coeff = recode(table1$CO2Cat, "1"=0,"2"=-0.2101278,"3"=-0.2647272)
 table1$PIPCoeff = recode(table1$PIPCat, "0"=0,"1"=-0.3218084)
 
 #replace NA with 0
-table1[, 53:78][is.na(table1[, 53:78])] <- 0
+table1 = table1 %>% replace_na(list(Myocardcoeff= 0, 
+                                     VTVFcoeff=0,
+                                     Heartlungtptcoeff=0,
+                                     Congheartcoeff=0,
+                                     Agecoeff=0,
+                                     Weightcoeff=0,
+                                        Livercoeff=0,
+                                     CNScoeff=0,
+                                     ARFcoeff=0,
+                                     CRFcoeff=0,
+                                     Intubcoeff=0,
+                                     PIPcoeff=0,
+                                     CAcoeff=0,
+                                     Dbpcoeff=0,
+                                     Pulseprcoeff=0,
+                                     Bicarbcoeff=0))
 
 ##CALCULATE LOGIT
 
