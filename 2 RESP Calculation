@@ -146,6 +146,19 @@ table1$CO2Coeff = recode(table1$CO2Cat, "1"=0,"2"=-0.2101278,"3"=-0.2647272)
 table1$PIPCoeff = recode(table1$PIPCat, "0"=0,"1"=-0.3218084)
 
 #replace NA with 0
+
+table1 = table1 %>% replace_na(list(AgeScore=0, 
+                                                     ImmuComprScore=0, 
+                                                     InVentScore=0,
+                                                     AcRespGpScore=0,
+                                                     CNSDysfScore=0,
+                                                     NonPulmInfScore=0,
+                                                     NMBScore=0,
+                                                     NOScore=0, 
+                                                     BicarbScore=0, 
+                                                     CAScore=0, 
+                                                     CO2Score=0, 
+                                                     PIPScore=0))
 table1 = table1 %>% replace_na(list(AgeCoeff= 0, 
                                      ImmuComprCoeff=0,
                                      InVentCoeff=0,
@@ -157,7 +170,7 @@ table1 = table1 %>% replace_na(list(AgeCoeff= 0,
                                      BicarbCoeff=0,
                                      CACoeff=0,
                                      CO2Coeff=0,
-                                     PIPcoeff=0))
+                                     PIPCoeff=0))
 
 ##CALCULATE LOGIT
 
