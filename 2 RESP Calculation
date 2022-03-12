@@ -146,22 +146,18 @@ table1$CO2Coeff = recode(table1$CO2Cat, "1"=0,"2"=-0.2101278,"3"=-0.2647272)
 table1$PIPCoeff = recode(table1$PIPCat, "0"=0,"1"=-0.3218084)
 
 #replace NA with 0
-table1 = table1 %>% replace_na(list(Myocardcoeff= 0, 
-                                     VTVFcoeff=0,
-                                     Heartlungtptcoeff=0,
-                                     Congheartcoeff=0,
-                                     Agecoeff=0,
-                                     Weightcoeff=0,
-                                        Livercoeff=0,
-                                     CNScoeff=0,
-                                     ARFcoeff=0,
-                                     CRFcoeff=0,
-                                     Intubcoeff=0,
-                                     PIPcoeff=0,
-                                     CAcoeff=0,
-                                     Dbpcoeff=0,
-                                     Pulseprcoeff=0,
-                                     Bicarbcoeff=0))
+table1 = table1 %>% replace_na(list(AgeCoeff= 0, 
+                                     ImmuComprCoeff=0,
+                                     InVentCoeff=0,
+                                     AcRespGpCoeff=0,
+                                     CNSDysfCoeff=0,
+                                     NonPulmInfCoeff=0,
+                                        NMBCoeff=0,
+                                     NOCoeff=0,
+                                     BicarbCoeff=0,
+                                     CACoeff=0,
+                                     CO2Coeff=0,
+                                     PIPcoeff=0))
 
 ##CALCULATE LOGIT
 
@@ -199,4 +195,5 @@ table1$RESPscore= with(table1, rowSums(cbind(AgeScore,
 #Generate Resp Class based on score
 
 table1$RespClass = cut(table1$RESPscore, breaks = c(-100, -6, -2, 2, 5, 100), labels = c("5", "4", "3", "2","1"), include.lowest = TRUE)
-aggregate(table1$RESPscore ~ table1$ECMOtype, data = table1, summary)
+table1 = filter(table1, table1$ECMOtype == "Veno-Venous")
+write.xlsx(table1, file="VV_data.xlsx") 
