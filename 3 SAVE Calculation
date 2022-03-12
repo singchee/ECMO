@@ -1,11 +1,11 @@
 library(tidyverse)
 
 #Select only VA ecmo
-ECMO_final = filter(ECMO_final, ECMOtype == "Veno-Arterial" | ECMOtypeOther == "V-VA")
+ECMO_VA = filter(ECMO_final, ECMOtype == "Veno-Arterial" | ECMOtypeOther == "V-VA")
 
 
 #extract all variables of interest
-table1 = select(ECMO_final, 
+table1 = select(ECMO_VA, 
                     SLK581,
                     AGE,
                     Myocarditis,
@@ -174,9 +174,23 @@ table1$Bicarbcoeff=recode(table1$BicarbCat, "0"=0,"1"=-0.364)
 
 
 #replace NA in coeff with 0
-table1[, 55:70][is.na(table1[, 55:70])] <- 0
 
-
+table1 = table1 %>% replace_na(list(Myocardcoeff= 0, 
+                                      VTVFcoeff=0,
+                                      Heartlungtptcoeff=0,
+                                      Congheartcoeff=0,
+                                      Agecoeff=0,
+                                      Weightcoeff=0,
+                                      Livercoeff=0,
+                                      CNScoeff=0,
+                                      ARFcoeff=0,
+                                      CRFcoeff=0,
+                                      Intubcoeff=0,
+                                      PIPcoeff=0,
+                                      CAcoeff=0,
+                                      Dbpcoeff=0,
+                                      Pulseprcoeff=0,
+                                      Bicarbcoeff=0))
 
 ##CALCULATE LOGIT
 
@@ -195,6 +209,7 @@ table1$logit = -0.612 + with(table1,rowSums(cbind(Myocardcoeff,
                                                      CAscoeff,
                                                      Dbpcoeff,
                                                      Pulseprcoeff,
-                                                     Bicarbscore) ))
+                                                     Bicarbcoeff) ))
 ##CALCULATE SURVIVAL PROB##
 table1$survivalprob = exp(table1$logit) / (1+exp(table1$logit))
+
