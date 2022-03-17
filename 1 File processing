@@ -9,7 +9,7 @@ ECMOdata=ECMO_APD_data_for_analysis_update05092021
 ECMOdata=rename(ECMOdata, ECMOweight = Weight)
 
 #Split ECMO file into unique (i.e. patient not transfered) and transfer initiation site records
-ECMOunique = filter(ECMOdata, ECMO_epi == "Only" | ECMO_epi == "FirstECMO" | ECMO_epi == "SecondECMO")
+ECMOunique = filter(ECMOdata, ECMO_epi == "Only" | ECMO_epi == "First ECMO" | ECMO_epi == "Second ECMO")
 ECMOtransf = filter(ECMOdata,  ECMO_epi == "Initiating" | ECMO_epi == "Initiating only")
 
 #Create tidy APD dataset - separate dataframes for APD unique / initiation / receiving
@@ -22,7 +22,7 @@ APD = ECMO_data_and_linked_APD_for_analysis_03022021
 APD = rename(APD, APDweight = WEIGHT)
 APD$SLK581 = APD$ECMO_SLK581
 
-APDunique = filter(APD, ECMO_epi == "Only" | ECMO_epi == "FirstECMO" | ECMO_epi == "SecondECMO")
+APDunique = filter(APD, ECMO_epi == "Only" | ECMO_epi == "First ECMO" | ECMO_epi == "Second ECMO")
 
 #Create a dataset for APD data for transfers
 #Remove Hosp and ICU outcome from APD initial site
@@ -30,20 +30,20 @@ APDinit = filter(APD, ECMO_epi == "Initiating" | ECMO_epi == "Initiating only")
 APDinit = select(APDinit, -HOSP_OUTCM, -ICU_OUTCM)
 
 #Select only Hosp and ICU outcome from APD receiving
-APDrcv = filter(APD, ECMO_epi == "Only-Receive" | ECMO_epi == "Receive"| ECMO_epi == "FirstReceive" | ECMO_epi == "SecondReceive")
+APDrcv = filter(APD, ECMO_epi == "Initiating" | ECMO_epi == "Initiating Only")
 APDrcv = select(APDrcv, SLK581, HOSP_OUTCM, ICU_OUTCM)
 
+# merge ECMOtransfer with APD-intiation (without -hos and ICU outcome) and APD receiving (hos + icu outcome )
 
+ECMOtrans_merged = merge(ECMOtransf, APDrcv, by ="SLK581")
+ECMOtrans_merged = merge(ECMOtrans_merged, APDinit, by ="SLK581")
 ###Join data via PatientID
 
 #Merge ECMO unique table with relevant APD unique table
 
 ECMOunique_merged = merge(ECMOunique, APDunique, by = "SLK581")
 
-# merge ECMOtransfer with APD-intiation (without -hos and ICU outcome) and APD receiving (hos + icu outcome )
 
-ECMOtrans_merged = merge(ECMOtransf, APDrcv, by ="SLK581")
-ECMOtrans_merged = merge(ECMOtrans_merged, APDinit, by ="SLK581")
 
 #Generate final ECMO file
 ECMO_final = rbind(ECMOtrans_merged, ECMOunique_merged)
