@@ -1,7 +1,7 @@
 library(tidyverse)
 
 #Select only VA ecmo
-ECMO_VA = filter(ECMO_final, ECMOtype == "Veno-Arterial" | ECMOtypeOther == "V-VA")
+ECMO_VA = filter(ECMO_final, ECMOtype == "Veno-Arterial")
 
 
 #extract all variables of interest
@@ -47,7 +47,7 @@ table1$AgeCat = cut(table1$AGE, breaks = c(0, 39, 53, 63, 999), labels = c(1,2,3
 
 #Weight category 
 table1$weight = coalesce(as.numeric(table1$APDweight), as.numeric(table1$ECMOweight))
-table1$Weightcat = cut(table1$APDweight, breaks = c(0, 66, 76, 90, 999), labels = c(1,2,3,4), include.lowest = TRUE)
+table1$Weightcat = cut(table1$weight, breaks = c(0, 66, 76, 90, 999), labels = c(1,2,3,4), include.lowest = TRUE)
 
 #Pulse pressure
 table1$Systolicbp=as.numeric(table1$Systolicbp)
