@@ -10,7 +10,7 @@ ECMOdata=rename(ECMOdata, ECMOweight = Weight)
 
 #Split ECMO file into unique (i.e. patient not transfered) and transfer initiation site records
 ECMOunique = filter(ECMOdata, ECMO_epi == "Only" | ECMO_epi == "FirstECMO" | ECMO_epi == "SecondECMO")
-ECMOtransf = filter(ECMOdata,  ECMO_epi == "Initiation")
+ECMOtransf = filter(ECMOdata,  ECMO_epi == "Initiating" | ECMO_epi == "Initiating only")
 
 #Create tidy APD dataset - separate dataframes for APD unique / initiation / receiving
 
@@ -26,7 +26,7 @@ APDunique = filter(APD, ECMO_epi == "Only" | ECMO_epi == "FirstECMO" | ECMO_epi 
 
 #Create a dataset for APD data for transfers
 #Remove Hosp and ICU outcome from APD initial site
-APDinit = filter(APD, ECMO_epi == "Initiation")
+APDinit = filter(APD, ECMO_epi == "Initiating" | ECMO_epi == "Initiating only")
 APDinit = select(APDinit, -HOSP_OUTCM, -ICU_OUTCM)
 
 #Select only Hosp and ICU outcome from APD receiving
