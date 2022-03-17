@@ -12,8 +12,8 @@ table1 = select(ECMO_VA,
                     CardDysrhythmias,
                     HeartLungTransplant,
                     Congheartdisease,
-                    APDweight,
-                    ECMOweight,
+                    Weight,
+                    WEIGHT,
                     Systolicbp,
                     Diastolicbp,
                     CardiacarrestpriorECMO,
@@ -46,7 +46,7 @@ table1$Congheartdisease = ifelse(table1$Congheartdisease == "Yes", 1, 0)
 table1$AgeCat = cut(table1$AGE, breaks = c(0, 39, 53, 63, 999), labels = c(1,2,3,4), include.lowest = TRUE)
 
 #Weight category 
-table1$weight = coalesce(as.numeric(table1$APDweight), as.numeric(table1$ECMOweight))
+table1$weight = coalesce(as.numeric(table1$Weight), as.numeric(table1$WEIGHT))
 table1$Weightcat = cut(table1$weight, breaks = c(0, 66, 76, 90, 999), labels = c(1,2,3,4), include.lowest = TRUE)
 
 #Pulse pressure
